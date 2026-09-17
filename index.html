@@ -1,0 +1,1651 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>YEKE DUBBLE | !یک دوبله شو</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+  font-family:Tahoma,Arial,sans-serif;
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#app{
+  position:relative;
+  width:min(100vw,520px);
+  height:100dvh;
+  max-height:980px;
+  background:#000;
+  overflow:hidden;
+  touch-action:none;
+  user-select:none;
+}
+
+.screen{
+  position:absolute;
+  inset:0;
+  display:none;
+}
+
+.screen.active{
+  display:flex;
+}
+
+#selectScreen{
+  flex-direction:column;
+  padding:24px 18px 20px;
+  background:#020307;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:1000;
+  text-align:center;
+  margin:7px 0 2px;
+  color:#fff;
+  letter-spacing:1px;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 12px #58e7ff,
+    0 0 24px #58e7ff,
+    0 0 42px rgba(88,231,255,.8);
+  transform:skew(-4deg);
+}
+
+.logo .en{
+  display:block;
+  font-size:29px;
+  letter-spacing:2px;
+  color:#f7fbff;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px #55e7ff,
+    0 0 22px #55e7ff,
+    0 0 38px #176dff;
+}
+
+.logo .fa{
+  display:block;
+  font-size:14px;
+  letter-spacing:1px;
+  margin-top:2px;
+  color:#ffe97a;
+  text-shadow:
+    0 0 5px #ffe97a,
+    0 0 14px #ffc400,
+    0 0 24px rgba(255,196,0,.8);
+}
+
+.sub{
+  font-size:13px;
+  color:#aeb8c2;
+  text-align:center;
+  margin-bottom:20px;
+}
+
+h2{
+  color:#fff;
+  text-align:center;
+  font-size:21px;
+  margin:0 0 17px;
+}
+
+.characters{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  overflow:auto;
+  padding:3px 2px 15px;
+}
+
+.card{
+  border:1px solid #354452;
+  background:#11151e;
+  border-radius:18px;
+  padding:12px 8px;
+  color:#fff;
+  text-align:center;
+  cursor:pointer;
+  transition:.15s;
+  min-height:128px;
+}
+
+.card.selected{
+  border:3px solid #f3c64b;
+  background:#171d29;
+  transform:scale(1.02);
+}
+
+.avatar{
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  margin:auto auto 8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#394a5a;
+  border:3px solid #66788a;
+  overflow:hidden;
+  flex-shrink:0;
+}
+
+.avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.card.selected .avatar{
+  border-color:#f3c64b;
+}
+
+.card small{
+  display:block;
+  color:#dce3e8;
+  font-size:13px;
+}
+
+#startBtn{
+  margin-top:auto;
+  width:100%;
+  border:0;
+  border-radius:15px;
+  padding:15px;
+  background:#f3c64b;
+  color:#171717;
+  font-weight:900;
+  font-size:17px;
+  cursor:pointer;
+}
+
+#startBtn:disabled{
+  opacity:.35;
+}
+
+#gameScreen{
+  background:#000;
+  display:none;
+}
+
+#gameScreen.active{
+  display:block;
+}
+
+#gameCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.hud{
+  position:absolute;
+  top:12px;
+  left:12px;
+  right:12px;
+  display:flex;
+  justify-content:space-between;
+  direction:rtl;
+  pointer-events:none;
+  z-index:3;
+}
+
+.badge{
+  background:rgba(5,7,12,.78);
+  backdrop-filter:blur(5px);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:12px;
+  color:#fff;
+  padding:8px 11px;
+  font-size:13px;
+}
+
+.badge b{
+  font-size:17px;
+  color:#f3c64b;
+}
+.controls{
+  position:absolute;
+  bottom:14px;
+  left:14px;
+  right:14px;
+  display:flex;
+  justify-content:space-between;
+  direction:ltr;
+  z-index:4;
+  pointer-events:none;
+}
+
+.ctrl{
+  width:72px;
+  height:58px;
+  border-radius:17px;
+  background:rgba(5,7,12,.52);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  pointer-events:auto;
+}
+
+.score-pop{
+  position:absolute;
+  z-index:8;
+  pointer-events:none;
+  font-weight:1000;
+  font-size:13px;
+  color:#fff;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px #63e6ff;
+  transform:translate(-50%,-50%);
+  animation:scoreFloat .65s ease-out forwards;
+}
+
+.score-pop.gold{
+  color:#ffe36a;
+  font-size:14px;
+  text-shadow:
+    0 0 5px #fff,
+    0 0 10px #ffd43b,
+    0 0 20px #ffb300;
+}
+
+@keyframes scoreFloat{
+  0%{
+    opacity:0;
+    transform:translate(-50%,-25%) scale(.75);
+  }
+
+  20%{
+    opacity:1;
+    transform:translate(-50%,-50%) scale(1);
+  }
+
+  100%{
+    opacity:0;
+    transform:translate(-50%,-115%) scale(.92);
+  }
+}
+
+#gameOver{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.80);
+  z-index:10;
+  padding:24px;
+}
+
+#gameOver.show{
+  display:flex;
+}
+
+.overbox{
+  width:100%;
+  background:#0b1018;
+  border:1px solid #394b5c;
+  border-radius:22px;
+  padding:27px 20px;
+  text-align:center;
+  color:#fff;
+}
+
+.overbox h2{
+  margin-bottom:10px;
+  font-size:28px;
+}
+
+.result{
+  font-size:17px;
+  line-height:2;
+  color:#cdd6dd;
+}
+
+.result b{
+  color:#f3c64b;
+  font-size:25px;
+}
+
+.overbox button{
+  width:100%;
+  padding:13px;
+  margin-top:9px;
+  border:0;
+  border-radius:13px;
+  font-weight:900;
+  font-size:15px;
+  cursor:pointer;
+}
+
+#again{
+  background:#f3c64b;
+}
+
+#back{
+  background:#354554;
+  color:#fff;
+}
+
+.tip{
+  font-size:11px;
+  color:#8f9ba5;
+  text-align:center;
+  margin-top:6px;
+}
+
+@media(min-width:700px){
+  #app{
+    height:96vh;
+    border-radius:22px;
+    box-shadow:0 15px 50px #000;
+  }
+}
+</style>
+
+
+
+
+<div id="app">
+
+
+
+<section id="selectScreen" class="screen active">
+
+  <div class="logo">
+    <span class="en">YEKE DUBBLE</span>
+    <span class="fa">!یک دوبله شو</span>
+  </div>
+
+  <div class="sub">
+   طراحی و ایده: سید محسن حسینی
+  </div>
+
+  <h2>
+    کاراکتر خودتو انتخاب کن
+  </h2>
+
+  <div id="characters" class="characters"></div>
+
+  <button id="startBtn" disabled="">
+    شروع
+  </button>
+
+  <div class="tip">
+  🙏 این بازی با زحمت و بدبختی توسط یک جوان ایرانی ساخته شده، لطفا بدون ذکر منبع دزدی نکنید
+  </div>
+
+</section>
+<section id="gameScreen" class="screen">
+
+  <canvas id="gameCanvas"></canvas>
+<img id="playerAvatar" class="player-avatar" alt="کاراکتر">
+<audio id="bgMusic" loop preload="auto" src="https://dl.musicdel.ir/Music/1403/05//Unknown%20Artist-Khare%20Kharam%20-musicdel.ir%20128.mp3"></audio>
+
+  <div class="hud">
+
+    <div class="badge">
+      امتیاز:
+      <b id="score">0</b>
+    </div>
+
+    <div class="badge">
+      رکورد:
+      <b id="best">0</b>
+    </div>
+
+  </div>
+
+
+  <div class="controls">
+
+    <div id="left" class="ctrl">
+      ◀
+    </div>
+
+    <div id="right" class="ctrl">
+      ▶
+    </div>
+
+  </div>
+
+
+  <div id="gameOver">
+
+    <div class="overbox">
+
+      <h2>
+        💥 ! سوختی دادا
+      </h2>
+
+      <div class="result">
+
+        امتیاز این بازی
+        <br>
+
+        <b id="finalScore">0</b>
+
+        <br>
+
+        رکورد شما
+        <br>
+
+        <b id="finalBest">0</b>
+
+      </div>
+
+      <button id="again">
+        🔄 بازی دوباره
+      </button>
+
+      <button id="back">
+        🎭 انتخاب کاراکتر
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+</div>
+
+
+<script>
+
+const characters=[
+  "مهرداد رئیسی",
+  "علیرضا وارسته",
+  "منوچهر والی زاده",
+  "سمیه الیاسی",
+  "مسعود تقی پور",
+  "بهمن هاشمی",
+  "ساناز غلامی",
+  "هوتن شکیبا",
+  "سید محسن حسینی",
+  "ژرژ پطرسی"
+];
+
+const images=[
+  "images/Mehrdad_1.jpg",
+  "images/Varaste_2.jpg",
+  "images/Vali_3.jpg",
+  "images/Somayye_4.jpg",
+  "images/TaghiPour_5.jpg",
+  "images/Bahman_6.jpg",
+  "images/Gholami_7.jpg",
+  "images/Houtan_8.jpg",
+  "images/mohsen_9.jpg",
+  "images/Petrosi_10.jpg"
+];
+
+const emojis=[
+  "🎙️",
+  "🎧",
+  "🎭",
+  "🎬",
+  "🎤",
+  "🎙️",
+  "🎧",
+  "🎭",
+  "🎤",
+  "🎙️"
+];
+
+const characterImages=images.map(src=>{
+  const img=new Image();
+  img.src=src;
+  return img;
+});
+
+const charsEl=document.getElementById("characters");
+let selected=-1;
+
+characters.forEach((name,i)=>{
+  const c=document.createElement("div");
+  c.className="card";
+
+  c.innerHTML=`
+    <div class="avatar">
+      <img src="${images[i]}" alt="${name}" onerror="this.style.display='none'; this.parentElement.textContent=emojis[i] || '🎙️';">
+    </div>
+    <small>${name}</small>
+  `;
+
+  c.addEventListener("click",()=>{
+    document.querySelectorAll(".card").forEach(x=>x.classList.remove("selected"));
+    c.classList.add("selected");
+    selected=i;
+    playerAvatar.src=images[i];
+    startBtn.disabled=false;
+  });
+
+  charsEl.appendChild(c);
+});
+
+const selectScreen=
+  document.getElementById("selectScreen");
+
+const gameScreen=
+  document.getElementById("gameScreen");
+
+const startBtn=
+  document.getElementById("startBtn");
+
+const canvas=
+  document.getElementById("gameCanvas");
+
+const ctx=
+  canvas.getContext("2d");
+
+const scoreEl=
+  document.getElementById("score");
+
+const bestEl=
+  document.getElementById("best");
+
+const gameOver=
+  document.getElementById("gameOver");
+
+const finalScore=
+  document.getElementById("finalScore");
+
+const finalBest=
+  document.getElementById("finalBest");
+
+let W=0;
+let H=0;
+let dpr=1;
+let raf=0;
+let last=0;
+
+let score=0;
+
+let best=
+  Number(
+    localStorage.getItem("irdub_best") || 0
+  );
+
+let player;
+
+let items=[];
+
+let obstacles=[];
+
+let speed=230;
+
+let spawnTimer=0;
+
+let obTimer=0;
+
+let running=false;
+
+let leftDown=false;
+
+let rightDown=false;
+
+const playerAvatar=document.getElementById("playerAvatar");
+const bgMusic=document.getElementById("bgMusic");
+
+function shortTone(kind){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return;
+    const ac=new AC(),o=ac.createOscillator(),g=ac.createGain();
+    if(kind==="collect"){
+      o.type="sine";
+      o.frequency.setValueAtTime(720,ac.currentTime);
+      o.frequency.exponentialRampToValueAtTime(1120,ac.currentTime+.09);
+    }else if(kind==="lose"){
+      o.type="sawtooth";
+      o.frequency.setValueAtTime(260,ac.currentTime);
+      o.frequency.exponentialRampToValueAtTime(75,ac.currentTime+.28);
+    }else{
+      o.type="square";
+      o.frequency.setValueAtTime(520,ac.currentTime);
+      o.frequency.exponentialRampToValueAtTime(760,ac.currentTime+.07);
+    }
+    g.gain.setValueAtTime(.0001,ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(kind==="lose"?.16:.09,ac.currentTime+.012);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+(kind==="lose"?.32:.12));
+    o.connect(g);g.connect(ac.destination);
+    o.start();
+    o.stop(ac.currentTime+(kind==="lose"?.34:.14));
+    setTimeout(()=>{try{ac.close()}catch(e){}},500);
+  }catch(e){}
+}
+
+function startMusic(){
+  bgMusic.muted=false;
+  bgMusic.volume=0.28;
+  try{ bgMusic.currentTime=0; }catch(e){}
+  const p=bgMusic.play();
+  if(p&&p.catch){
+    p.catch(()=>{
+      // تلاش دوباره در همان رویداد کاربر
+      try{
+        bgMusic.currentTime=0;
+        bgMusic.play();
+      }catch(e){}
+    });
+  }
+}
+
+function stopMusic(){
+  bgMusic.pause();
+  bgMusic.currentTime=0;
+}
+
+function updatePlayerAvatar(){
+  if(!player||!playerAvatar)return;
+  playerAvatar.style.left=(player.x-player.r+2)+"px";
+  playerAvatar.style.top=(player.y-player.r+2)+"px";
+}
+
+function resize(){
+
+  dpr=
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
+
+  W=canvas.clientWidth;
+
+  H=canvas.clientHeight;
+
+  canvas.width=
+    Math.floor(W*dpr);
+
+  canvas.height=
+    Math.floor(H*dpr);
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
+}
+
+window.addEventListener(
+  "resize",
+  resize
+);
+function resetGame(){
+
+  resize();
+
+  score=0;
+
+  speed=230;
+
+  spawnTimer=.35;
+
+  obTimer=.8;
+
+  player={
+    x:W/2,
+    y:H-115,
+    r:25,
+    vx:0
+  };
+
+  items=[];
+
+  obstacles=[];
+
+  running=true;
+
+  last=performance.now();
+
+  scoreEl.textContent=score;
+
+  bestEl.textContent=best;
+
+  gameOver.classList.remove("show");
+  playerAvatar.style.display="block";
+  updatePlayerAvatar();
+
+  cancelAnimationFrame(raf);
+
+  raf=requestAnimationFrame(loop);
+}
+
+
+
+function start(){
+  shortTone("button");
+  startMusic();
+  selectScreen.classList.remove("active");
+  gameScreen.classList.add("active");
+  playerAvatar.style.display="block";
+  setTimeout(resetGame,30);
+}
+
+startBtn.addEventListener(
+  "click",
+  start
+);
+
+document
+  .getElementById("again")
+  .addEventListener(
+    "click",
+    ()=>{
+      // با کلیک واقعی کاربر، آهنگ را از ابتدای فایل دوباره پخش کن
+      stopMusic();
+      startMusic();
+      shortTone("button");
+      resetGame();
+    }
+  );
+
+document
+  .getElementById("back")
+  .addEventListener(
+    "click",
+    ()=>{
+
+      running=false;
+      stopMusic();
+      playerAvatar.style.display="none";
+
+      gameOver.classList.remove("show");
+
+      gameScreen.classList.remove("active");
+
+      selectScreen.classList.add("active");
+
+    }
+  );
+function setKey(dir,on){
+
+  if(dir==="left")
+    leftDown=on;
+  else
+    rightDown=on;
+
+}
+document
+  .getElementById("left")
+  .addEventListener(
+    "pointerdown",
+    e=>{
+      e.preventDefault();
+      setKey("left",true);
+    }
+  );
+
+document
+  .getElementById("right")
+  .addEventListener(
+    "pointerdown",
+    e=>{
+      e.preventDefault();
+      setKey("right",true);
+    }
+  );
+
+
+[
+  "pointerup",
+  "pointercancel",
+  "pointerleave"
+]
+.forEach(ev=>{
+
+  document
+    .getElementById("left")
+    .addEventListener(
+      ev,
+      e=>{
+        e.preventDefault();
+        setKey("left",false);
+      }
+    );
+
+  document
+    .getElementById("right")
+    .addEventListener(
+      ev,
+      e=>{
+        e.preventDefault();
+        setKey("right",false);
+      }
+    );
+
+});
+
+
+/* کیبورد */
+
+window.addEventListener(
+  "keydown",
+  e=>{
+
+    if(
+      e.key==="ArrowLeft" ||
+      e.key.toLowerCase()==="a"
+    )
+      leftDown=true;
+
+    if(
+      e.key==="ArrowRight" ||
+      e.key.toLowerCase()==="d"
+    )
+      rightDown=true;
+
+  }
+);
+
+window.addEventListener(
+  "keyup",
+  e=>{
+
+    if(
+      e.key==="ArrowLeft" ||
+      e.key.toLowerCase()==="a"
+    )
+      leftDown=false;
+
+    if(
+      e.key==="ArrowRight" ||
+      e.key.toLowerCase()==="d"
+    )
+      rightDown=false;
+
+  }
+);
+function rand(a,b){
+
+  return a+
+    Math.random()*(b-a);
+
+}
+
+
+function circleHit(a,b){
+
+  let dx=
+    a.x-b.x;
+
+  let dy=
+    a.y-b.y;
+
+  return(
+    dx*dx+
+    dy*dy
+  )<
+  (a.r+b.r)*
+  (a.r+b.r);
+
+}
+
+
+function showScorePop(
+  x,
+  y,
+  value,
+  gold
+){
+
+  const p=
+    document.createElement("div");
+
+  p.className=
+    "score-pop"+
+    (gold ? " gold" : "");
+
+  p.textContent=
+    "+"+value;
+
+  p.style.left=
+    x+"px";
+
+  p.style.top=
+    y+"px";
+
+  gameScreen.appendChild(p);
+
+  setTimeout(
+    ()=>p.remove(),
+    700
+  );
+
+}
+function spawnItem(){
+
+  const gold=
+    Math.random()<.14;
+
+  items.push({
+
+    x:rand(30,W-30),
+
+    y:-35,
+
+    r:gold ? 17 : 15,
+
+    gold:gold
+
+  });
+
+}
+function spawnObstacle(){
+
+  const type=
+    Math.random()<.48
+      ? "spike"
+      : "block";
+
+  const w=
+    type==="spike"
+      ? rand(36,58)
+      : rand(34,62);
+
+  obstacles.push({
+
+    x:rand(
+      w/2,
+      W-w/2
+    ),
+
+    y:-45,
+
+    w:w,
+
+    h:
+      type==="spike"
+        ? 32
+        : 34,
+
+    type:type
+
+  });
+
+}
+
+function update(dt){
+  speed=
+    Math.min(
+      470,
+      speed+dt*5.0
+    );
+
+
+  const accel=900;
+
+
+  if(
+    leftDown &&
+    !rightDown
+  )
+    player.vx-=accel*dt;
+
+
+  if(
+    rightDown &&
+    !leftDown
+  )
+    player.vx+=accel*dt;
+
+
+  if(
+    !leftDown &&
+    !rightDown
+  )
+    player.vx*=
+      Math.pow(.001,dt);
+
+
+  player.vx=
+    Math.max(
+      -360,
+      Math.min(
+        360,
+        player.vx
+      )
+    );
+
+
+  player.x+=
+    player.vx*dt;
+
+
+  player.x=
+    Math.max(
+      player.r+4,
+      Math.min(
+        W-player.r-4,
+        player.x
+      )
+    );
+  spawnTimer-=dt;
+
+  obTimer-=dt;
+
+
+  if(spawnTimer<=0){
+
+    spawnItem();
+
+    spawnTimer=
+      rand(.42,.75)*
+      Math.max(
+        .58,
+        1-(speed-230)/700
+      );
+
+  }
+
+  if(obTimer<=0){
+
+    spawnObstacle();
+
+    obTimer=
+      rand(.85,1.35)*
+      Math.max(
+        .58,
+        1-(speed-230)/850
+      );
+
+  }
+  items.forEach(
+    o=>o.y+=speed*dt
+  );
+
+  obstacles.forEach(
+    o=>o.y+=speed*dt
+  );
+
+  for(
+    let i=items.length-1;
+    i>=0;
+    i--
+  ){
+
+    const o=items[i];
+
+
+    if(
+      circleHit(
+        player,
+        o
+      )
+    ){
+
+      const gained=
+        o.gold ? 30 : 10;
+
+
+      score+=gained;
+
+      scoreEl.textContent=
+        score;
+
+
+      /* نمایش +10 یا +30 */
+
+      showScorePop(
+        o.x,
+        o.y,
+        gained,
+        o.gold
+      );
+
+
+      items.splice(
+        i,
+        1
+      );
+      if(score>best){
+
+        best=score;
+
+        localStorage.setItem(
+          "irdub_best",
+          best
+        );
+
+        bestEl.textContent=
+          best;
+
+      }
+
+    }
+
+    else if(
+      o.y>H+50
+    ){
+
+      items.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+
+
+  for(
+    let i=obstacles.length-1;
+    i>=0;
+    i--
+  ){
+
+    const o=
+      obstacles[i];
+
+
+    const nearX=
+      Math.abs(
+        player.x-o.x
+      )<
+      o.w/2+
+      player.r*.65;
+
+
+    const nearY=
+      Math.abs(
+        player.y-o.y
+      )<
+      o.h/2+
+      player.r*.65;
+
+
+    if(
+      nearX &&
+      nearY
+    ){
+
+      endGame();
+
+      return;
+
+    }
+
+
+    if(
+      o.y>H+60
+    ){
+
+      obstacles.splice(
+        i,
+        1
+      );
+
+    }
+
+  }
+
+}
+function draw(){updatePlayerAvatar();
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  const g=
+    ctx.createRadialGradient(
+      W*.5,
+      H*.28,
+      5,
+      W*.5,
+      H*.45,
+      Math.max(W,H)*.9
+    );
+
+
+  g.addColorStop(
+    0,
+    "#090d1b"
+  );
+
+  g.addColorStop(
+    .42,
+    "#030611"
+  );
+
+  g.addColorStop(
+    1,
+    "#000105"
+  );
+
+
+  ctx.fillStyle=g;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+  ctx.save();
+
+  const drift=
+    (performance.now()*.018)%70;
+
+
+  for(
+    let y=-70+drift;
+    y<H+70;
+    y+=70
+  ){
+
+    for(
+      let x=18;
+      x<W;
+      x+=47
+    ){
+
+      const n=
+        Math.sin(
+          x*12.9898+
+          y*78.233
+        )*
+        43758.5453;
+
+
+      const f=
+        n-
+        Math.floor(n);
+
+
+      if(f>.42){
+
+        const r=
+          .45+
+          f*1.15;
+
+
+        ctx.globalAlpha=
+          .18+
+          f*.5;
+
+
+        ctx.fillStyle=
+          "#ffffff";
+
+
+        ctx.beginPath();
+
+        ctx.arc(
+          x+Math.sin(y)*8,
+          y,
+          r,
+          0,
+          Math.PI*2
+        );
+
+        ctx.fill();
+
+      }
+
+    }
+
+  }
+  ctx.globalAlpha=.07;
+
+
+  const neb=
+    ctx.createRadialGradient(
+      W*.15,
+      H*.38,
+      0,
+      W*.15,
+      H*.38,
+      W*.75
+    );
+
+
+  neb.addColorStop(
+    0,
+    "#5a4f9c"
+  );
+
+  neb.addColorStop(
+    1,
+    "transparent"
+  );
+
+
+  ctx.fillStyle=neb;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  ctx.restore();
+  items.forEach(o=>{
+
+    ctx.save();
+
+    ctx.translate(
+      o.x,
+      o.y
+    );
+    if(o.gold){
+
+      ctx.shadowBlur=30;
+
+      ctx.shadowColor=
+        "#ffd43b";
+
+
+      ctx.fillStyle=
+        "rgba(255,210,55,.18)";
+
+
+      ctx.beginPath();
+
+      ctx.arc(
+        0,
+        0,
+        o.r*1.8,
+        0,
+        Math.PI*2
+      );
+
+      ctx.fill();
+
+
+      ctx.shadowBlur=18;
+
+      ctx.shadowColor=
+        "#ffc928";
+
+
+      ctx.fillStyle=
+        "#f5c542";
+
+    }
+
+    else{
+
+      ctx.shadowBlur=8;
+
+      ctx.shadowColor=
+        "#a8c7df";
+
+
+      ctx.fillStyle=
+        "#e9eef2";
+
+    }
+
+
+    ctx.beginPath();
+
+    ctx.arc(
+      0,
+      0,
+      o.r,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    ctx.shadowBlur=0;
+
+
+    if(o.gold){
+
+      ctx.font=
+        "bold 22px Arial";
+
+      ctx.fillStyle=
+        "#8b5a00";
+
+    }
+
+    else{
+
+      ctx.font=
+        "19px Arial";
+
+      ctx.fillStyle=
+        "#263747";
+
+    }
+
+
+    ctx.textAlign=
+      "center";
+
+    ctx.textBaseline=
+      "middle";
+
+    ctx.fillText(
+      "🎙️",
+      0,
+      1
+    );
+    if(o.gold){
+
+      ctx.strokeStyle=
+        "rgba(255,231,119,.9)";
+
+      ctx.lineWidth=2;
+
+      ctx.beginPath();
+
+      ctx.arc(
+        0,
+        0,
+        o.r+3,
+        0,
+        Math.PI*2
+      );
+
+      ctx.stroke();
+
+    }
+
+
+    ctx.restore();
+  });
+  obstacles.forEach(o=>{
+
+    ctx.save();
+
+    ctx.translate(
+      o.x,
+      o.y
+    );
+
+
+    if(o.type==="spike"){
+
+      ctx.fillStyle=
+        "#e55353";
+
+
+      ctx.beginPath();
+
+      ctx.moveTo(
+        -o.w/2,
+        o.h/2
+      );
+
+      ctx.lineTo(
+        0,
+        -o.h/2
+      );
+
+      ctx.lineTo(
+        o.w/2,
+        o.h/2
+      );
+
+      ctx.closePath();
+
+      ctx.fill();
+
+
+      ctx.fillStyle=
+        "#ff8a72";
+
+
+      ctx.fillRect(
+        -o.w/2,
+        o.h/2-4,
+        o.w,
+        4
+      );
+
+    }
+
+    else{
+
+      ctx.fillStyle=
+        "#8e5960";
+
+
+      ctx.fillRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+
+
+      ctx.strokeStyle=
+        "#c57b80";
+
+
+      ctx.lineWidth=2;
+
+
+      ctx.strokeRect(
+        -o.w/2,
+        -o.h/2,
+        o.w,
+        o.h
+      );
+    }
+    ctx.restore();
+  });
+  ctx.save();
+  ctx.translate(player.x,player.y);
+
+  // هاله‌ی طلایی دور کاراکتر
+  ctx.shadowBlur=13;
+  ctx.shadowColor="rgba(243,198,75,.5)";
+  ctx.fillStyle="#f3c64b";
+  ctx.beginPath();
+  ctx.arc(0,0,player.r,0,Math.PI*2);
+  ctx.fill();
+  ctx.shadowBlur=0;
+
+  // عکس کاراکتر انتخاب‌شده
+  const selectedImg=characterImages[selected];
+  if(selectedImg && selectedImg.complete && selectedImg.naturalWidth>0){
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(0,0,player.r-2,0,Math.PI*2);
+    ctx.clip();
+
+    const size=(player.r-2)*2;
+    ctx.drawImage(
+      selectedImg,
+      -size/2,
+      -size/2,
+      size,
+      size
+    );
+    ctx.restore();
+
+    // حلقه‌ی دور عکس
+    ctx.strokeStyle="#f3c64b";
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(0,0,player.r-1,0,Math.PI*2);
+    ctx.stroke();
+  }else{
+    // اگر عکس هنوز لود نشده باشد، آیکون جایگزین نمایش داده می‌شود
+    ctx.font="29px Arial";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText(emojis[selected] || "🎙️",0,1);
+  }
+
+  ctx.restore();
+
+}
+
+
+
+
+function loop(t){
+
+  if(!running)
+    return;
+
+
+  const dt=
+    Math.min(
+      .032,
+      (t-last)/1000
+    );
+
+
+  last=t;
+
+
+  update(dt);
+
+  draw();
+
+
+  raf=
+    requestAnimationFrame(
+      loop
+    );
+
+}
+
+function endGame(){
+  running=false;
+  shortTone("lose");
+  stopMusic();
+  finalScore.textContent=score;
+  finalBest.textContent=best;
+  gameOver.classList.add("show");
+}
+bestEl.textContent=
+  best;
+
+</script>
